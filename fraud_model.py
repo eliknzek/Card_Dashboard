@@ -119,7 +119,7 @@ def pr_curve_fig(res, T, go, np):
         hovertemplate=f"no skill {res['no_skill']:.1%}<extra></extra>"))
     fig.update_layout(**T.plotly_layout(
         title=f"PRECISION–RECALL  ·  PR-AUC {res['ap']:.3f}", height=360,
-        margin=dict(l=56, r=8, t=52, b=44),
+        margin=dict(l=56, r=8, t=66, b=44),
         xaxis=dict(title="recall", tickformat=".0%", range=[0, 1],
                    gridcolor=T.GRID, linecolor=T.BORDER,
                    tickfont=dict(color=T.INK_MUTED, size=11),
@@ -145,7 +145,7 @@ def importance_fig(res, names, T, go):
         hovertemplate="<b>%{y}</b><br>PR-AUC lost when shuffled %{x:.4f}<extra></extra>"))
     fig.update_layout(**T.plotly_layout(
         title="PERMUTATION IMPORTANCE", height=360, bargap=0.35, showlegend=False,
-        margin=dict(l=8, r=64, t=52, b=40),
+        margin=dict(l=8, r=64, t=66, b=40),
         xaxis=dict(gridcolor=T.GRID, linecolor=T.BORDER, zerolinecolor=T.BORDER,
                    tickfont=dict(color=T.INK_MUTED, size=11)),
         yaxis=dict(gridcolor="rgba(0,0,0,0)", linecolor=T.BORDER,

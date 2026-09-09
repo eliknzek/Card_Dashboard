@@ -402,7 +402,7 @@ with tab_scan:
                 yaxis=dict(gridcolor="rgba(0,0,0,0)", linecolor=T.BORDER,
                            tickfont=dict(color=T.INK_DIM, size=11)),
             ))
-            st.plotly_chart(fig, width="stretch")
+            st.plotly_chart(fig, width="stretch", key="scan_auc")
 
         top = scan.iloc[0]
         dead = scan[scan["strength"].isin(["none", "weak"])]["name"].tolist()
@@ -425,11 +425,11 @@ with tab_seg:
     baseline = df[LABEL].mean()
 
     if col == "transaction_hour":
-        st.plotly_chart(hour_profile(df, baseline), width="stretch")
+        st.plotly_chart(hour_profile(df, baseline), width="stretch", key="seg_hours")
 
     seg = fa.segment_table(df, col, LABEL, KINDS[col])
     st.plotly_chart(lift_bar(seg, f"FRAUD RATE BY BUCKET — {NAME[col]}", baseline),
-                    width="stretch")
+                    width="stretch", key="seg_lift")
 
     sort_by = st.radio("sort table by", ["lift", "fraud rate", "share of fraud",
                                          "transactions", "bucket order"],
@@ -454,7 +454,7 @@ with tab_seg:
         })
     st.caption(f"Buckets under {fa.MIN_BIN_SUPPORT} transactions are shown but are too "
                "thin to trust at this base rate.")
-    st.plotly_chart(class_distribution(df, col), width="stretch")
+    st.plotly_chart(class_distribution(df, col), width="stretch", key="seg_dist")
 
 # ---------------------------------------------------------------- 3. rule miner
 with tab_rules:
@@ -508,7 +508,7 @@ with tab_rules:
     else:
         rate_m, count_m = fa.cross_matrix(df, row_col, col_col, LABEL, KINDS)
         st.plotly_chart(heatmap(rate_m, count_m, row_col, col_col, df[LABEL].mean()),
-                        width="stretch")
+                        width="stretch", key="rule_heatmap")
         with st.expander("cell counts (the support behind each cell)"):
             st.dataframe(count_m, width="stretch")
 
@@ -540,7 +540,7 @@ with tab_model:
             f'▸ real fraud data never looks like this; treat the numbers below as a check '
             f'that the pipeline works, and use the tabs to the left for the actual analysis.'
             '</div>', unsafe_allow_html=True)
-        st.plotly_chart(flag_step_fig(ftab, cut), width="stretch")
+        st.plotly_chart(flag_step_fig(ftab, cut), width="stretch", key="mdl_flags")
         with st.expander("the rule, row by row"):
             st.dataframe(
                 ftab, width="stretch", hide_index=True,
@@ -594,11 +594,11 @@ with tab_model:
 
         p1, p2 = st.columns(2)
         with p1:
-            st.plotly_chart(fm.pr_curve_fig(res, T, go, np), width="stretch")
+            st.plotly_chart(fm.pr_curve_fig(res, T, go, np), width="stretch", key="mdl_pr")
             st.caption("Recall = share of fraud caught. Precision = share of alerts "
                        "that really are fraud. The dotted floor is what guessing gets you.")
         with p2:
-            st.plotly_chart(fm.importance_fig(res, NAME, T, go), width="stretch")
+            st.plotly_chart(fm.importance_fig(res, NAME, T, go), width="stretch", key="mdl_imp")
             st.caption("How much PR-AUC the model loses when that column alone is "
                        "shuffled — measured on the held-out set, so it rewards columns "
                        "that genuinely carry signal.")
@@ -628,25 +628,25 @@ with tab_model:
                 f"{money(o['amt_leaked'])} leaked")
 
         st.write("")
-        st.plotly_chart(fm.score_hist_fig(res, thr, T, go), width="stretch")
+        st.plotly_chart(fm.score_hist_fig(res, thr, T, go), width="stretch", key="mdl_scores")
 
 # ---------------------------------------------------------------- 5. overview
 with tab_over:
     st.markdown("## the shape of the filtered book")
     baseline = df[LABEL].mean()
-    st.plotly_chart(hour_profile(df, baseline), width="stretch")
+    st.plotly_chart(hour_profile(df, baseline), width="stretch", key="ovw_hours")
 
     o1, o2 = st.columns(2)
     with o1:
         st.plotly_chart(
             lift_bar(fa.segment_table(df, "device_trust_score", LABEL, "numeric"),
                      "FRAUD RATE BY DEVICE TRUST SCORE", baseline),
-            width="stretch")
+            width="stretch", key="ovw_trust")
     with o2:
         st.plotly_chart(
             lift_bar(fa.segment_table(df, "velocity_last_24h", LABEL, "discrete"),
                      "FRAUD RATE BY TXNS IN LAST 24H", baseline),
-            width="stretch")
+            width="stretch", key="ovw_velocity")
 
     counts = df.groupby("merchant_category", observed=True)[LABEL].agg(["size", "sum", "mean"])
     counts = counts.sort_values("mean", ascending=False)
@@ -670,8 +670,8 @@ with tab_over:
                    tickfont=dict(color=T.INK_MUTED, size=11),
                    title_font=dict(color=T.INK_MUTED)),
     ))
-    st.plotly_chart(fig, width="stretch")
-    st.plotly_chart(class_distribution(df, "amount"), width="stretch")
+    st.plotly_chart(fig, width="stretch", key="ovw_category")
+    st.plotly_chart(class_distribution(df, "amount"), width="stretch", key="ovw_amount")
 
 # ---------------------------------------------------------------- 6. data
 with tab_data:
